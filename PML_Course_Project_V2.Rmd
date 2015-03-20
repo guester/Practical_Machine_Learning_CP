@@ -7,7 +7,7 @@ Presented here is an analysis of a data set generated from accelerometers on the
 
 ***Loading the dataset***
 ```{r}
-curls<-read.table("https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv", header=T, sep=",", na.strings=c("NA", "", "#DIV/0!"))
+curls<-read.table("http://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv", header=T, sep=",", na.strings=c("NA", "", "#DIV/0!"))
 ```
 
 ***Cleaning the dataset***
