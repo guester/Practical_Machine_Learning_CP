@@ -19,7 +19,7 @@ nacount<-as.data.frame(nacount)
 totals<-sapply(nacount, sum)
 ColumnsToRemove<-which(totals>0)
 curls<-curls[,-ColumnsToRemove]
-#Remove any variable related to time data was recorded as this won't affect classe
+#Remove any variable related to time because this isn't likely to affect classe
 curls<-curls[, -grep("time", names(curls))]
 #Manual inspection of remaining variables suggests that the first 4 variables can also be removed
 curls<-curls[,-(1:4)]
@@ -35,16 +35,13 @@ curltest<-curls[-partition,]
 
 ***A Random Forest Model***
 ```{r}
-#We are trying to predict a categorical variable that has multiple levels.  #Random forests are typically a good approach in such cases.  The following
-#code trains a random forest model using 50 trees and 3-fold cross
-#validation.  The choice of 50 trees and 3-fold cross validation reduces 
-#computing time while still generating an accurate model
+#We are trying to predict a categorical variable that has multiple levels.  In many cases like this Random Forests are a good approach.  Therefore, the following code trains a random forest model using 50 trees and 3-fold cross validation.  The choice of 50 trees and 3-fold cross validation reduces computing time while still generating an accurate model
 
 modFit<-train(classe~., data=curltrain, method="rf", ntree=50, number=3)
+#Let's take a look at the model
 modFit
-modFit$finalModel
-predictions<-predict(modFit, newdata=curltrain)
-confusionMatrix(predictions, curltrain$classe)
+#We can see that the final model chosen has an accuracy of 98.7% on the training data.  This appears to be a very strong model.  Let's see how it performs on the test data and get an estimation of the out of sample error rate
 predictions<-predict(modFit, newdata=curltest)
 confusionMatrix(predictions, curltest$classe)
+#We can see the accuracy on the test set is very high (>99%).  This provides further evidence for the strength of this model and suggests that the out of sample error rate will be very low (<1%).  Further support for the validity of this model as a strong classifier comes from the 20/20 score that it acheived on the 20 test samples provided for the programming portion of this assigment.
 ```
