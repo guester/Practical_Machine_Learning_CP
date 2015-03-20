@@ -1,0 +1,50 @@
+---
+title: "Practical Machine Learning CP"
+output: html_document
+---
+
+Presented here is an analysis of a data set generated from accelerometers on the belt, forearm, arm, and dumbell of 6 participants.  The goal of this analysis is to build a model/classifier that will take a set of observations as input and predict the manner (classe) in which the exercise was performed for each observation.
+
+***Loading the dataset***
+```{r}
+curls<-read.table("https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv", header=T, sep=",", na.strings=c("NA", "", "#DIV/0!"))
+```
+
+***Cleaning the dataset***
+
+```{r}
+#Remove any variable that contains NAs
+nacount<-sapply(curls, is.na)
+nacount<-as.data.frame(nacount)
+totals<-sapply(nacount, sum)
+ColumnsToRemove<-which(totals>0)
+curls<-curls[,-ColumnsToRemove]
+#Remove any variable related to time data was recorded as this won't affect classe
+curls<-curls[, -grep("time", names(curls))]
+#Manual inspection of remaining variables suggests that the first 4 variables can also be removed
+curls<-curls[,-(1:4)]
+```
+
+***Partition training data into a training and testing set***
+```{r}
+library(caret)
+partition<-createDataPartition(curls$classe, p=.7, list=F)
+curltrain<-curls[partition,]
+curltest<-curls[-partition,]
+```
+
+***A Random Forest Model***
+```{r}
+#We are trying to predict a categorical variable that has multiple levels.  #Random forests are typically a good approach in such cases.  The following
+#code trains a random forest model using 50 trees and 3-fold cross
+#validation.  The choice of 50 trees and 3-fold cross validation reduces 
+#computing time while still generating an accurate model
+
+modFit<-train(classe~., data=curltrain, method="rf", ntree=50, number=3)
+modFit
+modFit$finalModel
+predictions<-predict(modFit, newdata=curltrain)
+confusionMatrix(predictions, curltrain$classe)
+predictions<-predict(modFit, newdata=curltest)
+confusionMatrix(predictions, curltest$classe)
+```
